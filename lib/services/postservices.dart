@@ -1,0 +1,33 @@
+part of 'services.dart';
+
+class PostServices {
+  static Future<ApiReturnValue<List<Post>>> getPosts(
+      {int idKategori, String keyword, http.Client client}) async {
+    client ??= http.Client();
+    String url;
+    if (keyword != null) {
+      url = baseURLAPI + 'post?keyword=' + keyword;
+    } else if (idKategori != null) {
+      url = baseURLAPI +
+          'getdatakategori.php?idkategori=' +
+          idKategori.toString();
+    } else {
+      url = baseURLAPI + 'getdata.php';
+    }
+
+    var response = await client.get(url, headers: {
+      "Content-Type": "application/json",
+    });
+
+    if (response.statusCode != 200) {
+      return ApiReturnValue(message: "Silahkan coba lagi");
+    }
+
+    var data = jsonDecode(response.body);
+
+    List<Post> categories =
+        (data as Iterable).map((e) => Post.fromJson(e)).toList();
+
+    return ApiReturnValue(value: categories);
+  }
+}
